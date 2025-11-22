@@ -1,0 +1,153 @@
+{
+  "timestamp": "2025-10-25T21:56:20.721369",
+  "solver_status": "艾立斯科技智慧排班系統: 已找到可行排班解 (因時間限制而停止)",
+  "statistics": {
+    "total_assignments": 341,
+    "total_demand": 341,
+    "gap_count": 0,
+    "filled_positions": 341
+  },
+  "employees": {
+    "total_count": 9,
+    "employee_list": [
+      {
+        "id": "E01",
+        "name": "謝○穎",
+        "skills": [
+          "行政"
+        ],
+        "eligible_posts": [
+          "櫃台人力",
+          "二線人力",
+          "藥局人力"
+        ]
+      },
+      {
+        "id": "E02",
+        "name": "楊○媛",
+        "skills": [
+          "行政"
+        ],
+        "eligible_posts": [
+          "櫃台人力",
+          "二線人力",
+          "藥局人力"
+        ]
+      },
+      {
+        "id": "E03",
+        "name": "張○榕",
+        "skills": [
+          "行政"
+        ],
+        "eligible_posts": [
+          "櫃台人力",
+          "二線人力",
+          "藥局人力"
+        ]
+      },
+      {
+        "id": "E04",
+        "name": "黃○諭",
+        "skills": [
+          "行政"
+        ],
+        "eligible_posts": [
+          "櫃台人力",
+          "二線人力",
+          "藥局人力"
+        ]
+      },
+      {
+        "id": "N01",
+        "name": "陳○",
+        "skills": [
+          "護理",
+          "行政"
+        ],
+        "eligible_posts": [
+          "護理人力",
+          "二線人力",
+          "櫃台人力",
+          "藥局人力"
+        ]
+      },
+      {
+        "id": "N02",
+        "name": "張○瑄",
+        "skills": [
+          "護理",
+          "行政"
+        ],
+        "eligible_posts": [
+          "護理人力",
+          "二線人力",
+          "櫃台人力",
+          "藥局人力"
+        ]
+      },
+      {
+        "id": "N03",
+        "name": "賴○伶",
+        "skills": [
+          "護理",
+          "行政"
+        ],
+        "eligible_posts": [
+          "護理人力",
+          "二線人力",
+          "櫃台人力",
+          "藥局人力"
+        ]
+      },
+      {
+        "id": "N04",
+        "name": "郭○伶",
+        "skills": [
+          "護理",
+          "行政"
+        ],
+        "eligible_posts": [
+          "護理人力",
+          "二線人力",
+          "櫃台人力",
+          "藥局人力"
+        ]
+      },
+      {
+        "id": "N05",
+        "name": "張○紜",
+        "skills": [
+          "護理長",
+          "護理",
+          "行政"
+        ],
+        "eligible_posts": [
+          "護理人力",
+          "二線人力",
+          "櫃台人力",
+          "藥局人力"
+        ]
+      }
+    ]
+  },
+  "schedule_period": {
+    "start_date": "2025/10/01",
+    "end_date": "2025/10/31",
+    "total_days": 31
+  },
+  "demand_summary": {
+    "total_demand_entries": 279,
+    "unique_posts": [
+      "櫃台人力",
+      "二線人力",
+      "護理人力",
+      "藥局人力"
+    ],
+    "shift_types": [
+      "C",
+      "B",
+      "A"
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+*.egg-info
+.pytest_cache
+.coverage
+htmlcov
+.mypy_cache
+.ruff_cache
+
+# Virtual environments
+.env
+.venv
+venv/
+env/
+ENV/
+
+# Database files (will be created in container)
+instance/*.db
+instance/*.db-journal
+instance/*.db-shm
+instance/*.db-wal
+*.db
+*.db-journal
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# IDE
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation (keep API_DOCUMENTATION.md if needed)
+README.md
+*.md
+!API_DOCUMENTATION.md
+
+# Celery
+celerybeat-schedule.*
+celerybeat.pid
+
+# Test files
+tests/
+test_*.py
+*_test.py
+
+# Reports
+reports/
+*.png
+*.jpg
+*.jpeg
+schedule_chart.png
+
+# One-time migration fix scripts (NOT needed in production)
+# These are development/debugging tools, not actual database migrations
+migrations/
+# Note: Alembic migrations in alembic/versions/ ARE needed and will be included
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+

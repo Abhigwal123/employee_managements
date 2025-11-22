@@ -1,0 +1,29 @@
+/* Sticky header styles for permission matrix table */
+.sticky-header th {
+  position: sticky;
+  top: 0;
+  background-color: #f9fafb; /* bg-gray-50 */
+  z-index: 10;
+}
+
+.sticky-col {
+  position: sticky;
+  left: 0;
+  background-color: #ffffff; /* bg-white */
+  z-index: 5;
+}
+
+/* Ensure sticky header's th style is above sticky-col */
+.sticky-header .sticky-col {
+  z-index: 15;
+  background-color: #f9fafb; /* bg-gray-50 */
+}
+
+/* For tbody sticky columns */
+tbody .sticky-col {
+  background-color: #ffffff; /* bg-white */
+}
+
+tbody tr:hover .sticky-col {
+  background-color: #f9fafb; /* bg-gray-50 */
+}

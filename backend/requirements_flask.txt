@@ -1,0 +1,53 @@
+# Flask Backend Dependencies
+flask>=3.0.0
+flask-cors>=4.0.0
+flask-sqlalchemy>=3.1.1
+flask-jwt-extended>=4.6.0
+flask-migrate>=4.0.5
+python-dotenv>=1.0.0
+
+# Database
+sqlalchemy>=2.0.23
+alembic>=1.13.1
+mysqlclient>=2.2.0  # MySQL driver (requires MySQL development libraries)
+# Alternative: PyMySQL>=1.1.0  # Pure Python MySQL driver (easier to install, slower)
+
+# Task Queue
+celery>=5.3.4
+kombu>=5.3.4
+redis>=5.0.1
+
+# Authentication & Security
+passlib[bcrypt]>=1.7.4
+werkzeug>=3.0.1
+
+# Schema Validation
+marshmallow>=3.0.0
+
+# HTTP Client
+requests>=2.31.0
+
+# Existing scheduling dependencies
+ortools>=9.6
+pandas>=2.0.0
+gspread>=5.10.0
+gspread-dataframe>=3.3.1
+openpyxl>=3.1.2
+matplotlib>=3.7.1
+google-auth>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-auth-httplib2>=0.1.0
+
+# Cloud Storage
+google-cloud-storage>=2.10.0
+
+# Monitoring & Logging
+structlog>=23.2.0
+prometheus-client>=0.19.0
+
+# Development
+pytest>=7.4.3
+black>=23.11.0
+isort>=5.12.0
+mypy>=1.7.1
+

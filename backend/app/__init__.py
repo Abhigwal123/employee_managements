@@ -56,10 +56,10 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(alert_bp, url_prefix="/api/v1/alerts")
     app.register_blueprint(diagnostic_bp, url_prefix="/api/v1/diagnostic")
     
-        # Register schedule routes
-        # CRITICAL: Wrap in try-except to catch any import-time or registration errors
-        try:
-            from .routes.schedule_routes import schedule_bp
+    # Register schedule routes
+    # CRITICAL: Wrap in try-except to catch any import-time or registration errors
+    try:
+        from .routes.schedule_routes import schedule_bp
         app.register_blueprint(schedule_bp, url_prefix="/api/v1/schedule")
         logger.info(f"[BLUEPRINT] Schedule blueprint registered successfully")
         logger.info(f"[BLUEPRINT] Schedule routes: {[str(rule) for rule in app.url_map.iter_rules() if 'schedule' in str(rule)]}")

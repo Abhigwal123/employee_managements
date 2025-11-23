@@ -3,7 +3,7 @@ Diagnostic routes for schedule linking issues
 """
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models import User, CachedSchedule, ScheduleDefinition, EmployeeMapping
+from ..models import User, CachedSchedule, ScheduleDefinition, EmployeeMapping
 from datetime import datetime
 import logging
 
@@ -172,5 +172,8 @@ def check_user_schedule(employee_id):
     except Exception as e:
         logger.error(f"Check user schedule error: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
+
+
+
 
 

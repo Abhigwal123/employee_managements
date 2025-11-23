@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, make_response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
-from app.models import User
+from ..models import User
 import logging
 import os
 

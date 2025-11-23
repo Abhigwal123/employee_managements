@@ -61,32 +61,70 @@ fi
 # Step 4: Check for .env file
 echo -e "${YELLOW}Step 4: Checking for .env file...${NC}"
 if [ ! -f ".env" ]; then
-    echo -e "${YELLOW}Creating .env file from template...${NC}"
-    cat > .env << 'EOF'
-# Database
-MYSQL_ROOT_PASSWORD=change_me_root_password
-MYSQL_PASSWORD=change_me_db_password
-MYSQL_USER=scheduling_user
+    if [ -f ".env.example" ]; then
+        echo -e "${YELLOW}Creating .env from .env.example...${NC}"
+        cp .env.example .env
+        echo -e "${RED}⚠️  .env created from template.${NC}"
+    else
+        echo -e "${YELLOW}Creating .env file with default values...${NC}"
+        cat > .env << 'EOF'
+# Environment Variables
+# IMPORTANT: Keep this file secure and never commit it to version control
+
+# Database Configuration
+MYSQL_ROOT_PASSWORD=CHANGE_THIS_TO_SECURE_PASSWORD
 MYSQL_DATABASE=scheduling_system
+MYSQL_USER=scheduling_user
+MYSQL_PASSWORD=CHANGE_THIS_TO_SECURE_PASSWORD
+MYSQL_PORT=3306
 
-# Flask
-SECRET_KEY=change_me_secret_key_min_32_chars
-JWT_SECRET_KEY=change_me_jwt_secret_min_32_chars
-FLASK_ENV=production
+# Redis Configuration
+REDIS_PORT=6379
 
-# Google Sheets
-GOOGLE_APPLICATION_CREDENTIALS=/app/service-account-creds.json
+# Flask Security Keys - Generate secure keys using: python -c "import secrets; print(secrets.token_urlsafe(64))"
+SECRET_KEY=change_me_secret_key_generate_secure_key_min_64_chars
+JWT_SECRET_KEY=change_me_jwt_secret_generate_secure_key_min_64_chars
 
-# Celery/Redis
+# Database URL (automatically constructed from MYSQL_* variables above)
+# DATABASE_URL is automatically set in docker-compose.yml
+
+# Celery Configuration
 CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/1
+
+# Google Sheets Configuration
+GOOGLE_APPLICATION_CREDENTIALS=/app/service-account-creds.json
+GOOGLE_INPUT_URL=https://docs.google.com/spreadsheets/d/1hEr8XD3ThVQQAFWi-Q0owRYxYnBRkwyqiOdbmp6zafg/edit?gid=0#gid=0
+GOOGLE_OUTPUT_URL=https://docs.google.com/spreadsheets/d/16K1AyhmOWWW1pDbWEIOyNB5td32sXxqsKCyO06pjUSw/edit?gid=0#gid=0
+
+# CORS Configuration (Update with your domain for production)
+BACKEND_CORS_ORIGINS=http://localhost:80,http://localhost,http://localhost:5173,http://localhost:5174,http://127.0.0.1:80,http://127.0.0.1:5173,http://127.0.0.1:5174
+
+# Frontend API URL
+FRONTEND_API_URL=/api/v1
 EOF
-    echo -e "${RED}⚠️  .env file created with default values.${NC}"
-    echo -e "${YELLOW}Please edit .env and change the passwords and secrets!${NC}"
+        echo -e "${RED}⚠️  .env file created with default values.${NC}"
+    fi
+    echo -e "${YELLOW}⚠️  IMPORTANT: Edit .env and change the following:${NC}"
+    echo -e "   - MYSQL_ROOT_PASSWORD (use a strong password)"
+    echo -e "   - MYSQL_PASSWORD (use a strong password)"
+    echo -e "   - SECRET_KEY (generate: python -c 'import secrets; print(secrets.token_urlsafe(64))')"
+    echo -e "   - JWT_SECRET_KEY (generate: python -c 'import secrets; print(secrets.token_urlsafe(64))')"
+    echo -e "   - BACKEND_CORS_ORIGINS (update with your domain for production)"
     echo -e "${YELLOW}Press Enter to continue after editing...${NC}"
     read
 else
     echo -e "${GREEN}✓ .env file found${NC}"
+    # Verify critical values are changed
+    if grep -q "CHANGE_THIS_TO_SECURE_PASSWORD" .env || grep -q "change_me_secret_key" .env; then
+        echo -e "${RED}⚠️  WARNING: .env still contains default/placeholder values!${NC}"
+        echo -e "${YELLOW}Please update passwords and secrets before deploying.${NC}"
+        read -p "Continue anyway? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            exit 1
+        fi
+    fi
 fi
 
 # Step 5: Stop existing containers
@@ -101,8 +139,12 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 echo -e "${YELLOW}Step 7: Waiting for MySQL to be ready...${NC}"
 MAX_WAIT=60
 WAIT_COUNT=0
+
+# Get MySQL root password from .env
+MYSQL_ROOT_PASS=$(grep "^MYSQL_ROOT_PASSWORD=" .env 2>/dev/null | cut -d '=' -f2- | tr -d '"' || echo "rootpassword")
+
 while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
-    if docker-compose -f docker-compose.yml -f docker-compose.prod.yml exec -T mysql mysqladmin ping -h localhost -uroot -prootpassword &>/dev/null 2>&1; then
+    if docker-compose -f docker-compose.yml -f docker-compose.prod.yml exec -T mysql mysqladmin ping -h localhost -uroot -p"$MYSQL_ROOT_PASS" &>/dev/null 2>&1; then
         echo -e "${GREEN}✓ MySQL is ready${NC}"
         break
     fi

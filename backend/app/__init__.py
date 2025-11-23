@@ -1,31 +1,31 @@
 # Multi-Tenant Scheduling System - Flask Backend
 # Main Application Factory
 from flask import Flask, jsonify, request, make_response, Response
-from app.config import Config
+from .config import Config
 from dotenv import load_dotenv
 import os
 import pymysql
-from app.extensions import db, jwt, cors, init_celery
-from app.utils.logger import configure_logging
+from .extensions import db, jwt, cors, init_celery
+from .utils.logger import configure_logging
 pymysql.install_as_MySQLdb()
-from app.routes.common_routes import common_bp
-from app.routes.auth import auth_bp
-from app.routes.sysadmin_routes import sysadmin_bp
-from app.routes.clientadmin_routes import clientadmin_bp
-from app.routes.schedulemanager_routes import schedulemanager_bp
-from app.routes.employee_routes import employee_bp
-from app.routes.tenant_routes import tenant_bp
-from app.routes.user_routes import user_bp
-from app.routes.department_routes import department_bp
-from app.routes.schedule_definition_routes import schedule_definition_bp
-from app.routes.schedule_permission_routes import schedule_permission_bp
-from app.routes.permissions_routes import permissions_bp
-from app.routes.schedule_job_log_routes import schedule_job_log_bp
-from app.routes.google_sheets_routes import google_sheets_bp
-from app.routes.role_routes import role_bp
-from app.routes.alert_routes import alert_bp
-from app.routes.diagnostic_routes import diagnostic_bp
-from app.services.celery_tasks import bind_celery, register_periodic_tasks, register_schedule_execution_task
+from .routes.common_routes import common_bp
+from .routes.auth import auth_bp
+from .routes.sysadmin_routes import sysadmin_bp
+from .routes.clientadmin_routes import clientadmin_bp
+from .routes.schedulemanager_routes import schedulemanager_bp
+from .routes.employee_routes import employee_bp
+from .routes.tenant_routes import tenant_bp
+from .routes.user_routes import user_bp
+from .routes.department_routes import department_bp
+from .routes.schedule_definition_routes import schedule_definition_bp
+from .routes.schedule_permission_routes import schedule_permission_bp
+from .routes.permissions_routes import permissions_bp
+from .routes.schedule_job_log_routes import schedule_job_log_bp
+from .routes.google_sheets_routes import google_sheets_bp
+from .routes.role_routes import role_bp
+from .routes.alert_routes import alert_bp
+from .routes.diagnostic_routes import diagnostic_bp
+from .services.celery_tasks import bind_celery, register_periodic_tasks, register_schedule_execution_task
 
 
 def register_blueprints(app: Flask) -> None:
@@ -56,10 +56,10 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(alert_bp, url_prefix="/api/v1/alerts")
     app.register_blueprint(diagnostic_bp, url_prefix="/api/v1/diagnostic")
     
-    # Register schedule routes
-    # CRITICAL: Wrap in try-except to catch any import-time or registration errors
-    try:
-        from app.routes.schedule_routes import schedule_bp
+        # Register schedule routes
+        # CRITICAL: Wrap in try-except to catch any import-time or registration errors
+        try:
+            from .routes.schedule_routes import schedule_bp
         app.register_blueprint(schedule_bp, url_prefix="/api/v1/schedule")
         logger.info(f"[BLUEPRINT] Schedule blueprint registered successfully")
         logger.info(f"[BLUEPRINT] Schedule routes: {[str(rule) for rule in app.url_map.iter_rules() if 'schedule' in str(rule)]}")
@@ -615,7 +615,7 @@ def create_app(config_object: type[Config] | None = None):
                 logger.warning(f"[STARTUP] ⚠ Engine pool does NOT have creator function")
             
             # Test User query to ensure tables exist
-            from app.models import User
+            from .models import User
             # Try to query users - handle case where employee_id column doesn't exist yet (migration pending)
             try:
                 user_count = User.query.count()
@@ -968,7 +968,7 @@ def create_app(config_object: type[Config] | None = None):
         try:
             db.create_all()
             # Initialize default users on first run
-            from app.utils.db import seed_initial_data, seed_schedule_definitions
+            from .utils.db import seed_initial_data, seed_schedule_definitions
             seed_initial_data(app)
             # Initialize default schedule definitions on first run
             seed_schedule_definitions(app)
@@ -978,7 +978,7 @@ def create_app(config_object: type[Config] | None = None):
         
         # Auto-validate and regenerate Google Sheet outputs on startup
         try:
-            from app.services.auto_regeneration_service import AutoRegenerationService
+            from .services.auto_regeneration_service import AutoRegenerationService
             import logging
             logger = logging.getLogger(__name__)
             

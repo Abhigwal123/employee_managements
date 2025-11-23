@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
-from app.utils.auth import role_required
-from app import db
-from app.models import Department, User
-from app.utils.security import sanitize_input
+from ..utils.auth import role_required
+from .. import db
+from ..models import Department, User
+from ..utils.security import sanitize_input
 import logging
 
 logger = logging.getLogger(__name__)

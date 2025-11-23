@@ -15,26 +15,43 @@ integration_file = Path(__file__).resolve()
 backend_dir = integration_file.parent.parent.parent  # backend/
 project_root = backend_dir.parent  # project root (parent of backend/)
 
-# CRITICAL: Remove app_dir from sys.path if it exists (it breaks package imports)
-# Something else might have added it (e.g., Google Sheets service loader)
+# In Docker: ./backend -> /app/backend, ./app -> /app/legacy_app
+# Check for legacy_app mount first (Docker), then fall back to app (local dev)
+legacy_app_dir = project_root / "legacy_app"
 app_dir = project_root / "app"
-app_dir_str = str(app_dir)
+if legacy_app_dir.exists():
+    app_dir = legacy_app_dir
+    app_dir_str = str(app_dir)
+elif app_dir.exists():
+    app_dir_str = str(app_dir)
+else:
+    # Try Docker paths
+    legacy_app_dir = Path("/app/legacy_app")
+    if legacy_app_dir.exists():
+        app_dir = legacy_app_dir
+        app_dir_str = str(app_dir)
+    else:
+        app_dir_str = str(app_dir)
+
+# CRITICAL: Remove app_dir from sys.path if it exists (it breaks package imports)
 if app_dir_str in sys.path:
     sys.path.remove(app_dir_str)
 
-# Add project root to sys.path FIRST (highest priority)
-# This allows "from app.*" imports to work (app is a package in project root)
-# DO NOT add app_dir to sys.path - that breaks package imports!
-project_root_str = str(project_root)
-if project_root_str not in sys.path:
-    sys.path.insert(0, project_root_str)
+# Add both backend and legacy_app to sys.path
+backend_dir_str = str(backend_dir)
+if backend_dir_str not in sys.path:
+    sys.path.insert(0, backend_dir_str)
+    
+# Add legacy_app to sys.path for "from legacy_app.*" imports
+if app_dir_str not in sys.path:
+    sys.path.insert(0, app_dir_str)
 
 # Log path setup for debugging
 logger = logging.getLogger(__name__)
-logger.info(f"[INTEGRATION] Project root: {project_root_str}")
-logger.info(f"[INTEGRATION] App package location: {app_dir_str}")
-logger.info(f"[INTEGRATION] sys.path[0:3]: {sys.path[0:3]}")
-logger.info(f"[INTEGRATION] ✅ Project root added to sys.path - 'from app.*' imports should work")
+    logger.info(f"[INTEGRATION] Project root: {project_root_str}")
+    logger.info(f"[INTEGRATION] Legacy app package location: {app_dir_str}")
+    logger.info(f"[INTEGRATION] sys.path[0:3]: {sys.path[0:3]}")
+    logger.info(f"[INTEGRATION] ✅ Legacy app added to sys.path - 'from legacy_app.*' imports should work")
 
 # Now import with explicit error handling - DO NOT hide ImportError
 try:
@@ -55,11 +72,11 @@ try:
     # Import legacy app modules
     # NOTE: We need to import root app modules directly using importlib because after run_refactored
     # restores the backend app in sys.modules, direct imports would find backend modules instead
-    logger.info(f"[INTEGRATION] Attempting to import app.* modules...")
+    logger.info(f"[INTEGRATION] Attempting to import legacy_app.* modules...")
     import importlib.util
     
     # Import root app.utils.logger directly from file path to avoid backend app conflict
-    root_logger_path = app_dir / "utils" / "logger.py"
+    root_logger_path = Path(app_dir_str) / "utils" / "logger.py"
     if root_logger_path.exists():
         spec = importlib.util.spec_from_file_location("root_app_utils_logger", str(root_logger_path))
         if spec and spec.loader:
@@ -76,10 +93,10 @@ try:
     # We don't need to import them here since run_schedule_task from run_refactored handles everything
     # But we keep the imports for backward compatibility and in case they're needed directly
     try:
-        from app.data_provider import create_data_provider
-        from app.data_writer import create_data_writer, write_all_results_to_excel, write_all_results_to_google_sheets
-        from app.schedule_cpsat import process_input_data, solve_cpsat
-        from app.schedule_helpers import (
+        from legacy_app.data_provider import create_data_provider
+        from legacy_app.data_writer import create_data_writer, write_all_results_to_excel, write_all_results_to_google_sheets
+        from legacy_app.schedule_cpsat import process_input_data, solve_cpsat
+        from legacy_app.schedule_helpers import (
             build_rows, build_daily_analysis_report, check_hard_constraints, 
             check_soft_constraints, generate_soft_constraint_report, 
             create_schedule_chart, debug_schedule
@@ -106,10 +123,10 @@ try:
     
     logger.info(f"[INTEGRATION] ✅ Successfully imported root app logger modules")
 except ImportError as e:
-    logger.error(f"[INTEGRATION] ❌ FAILED to import app.* modules: {e}")
-    logger.error(f"[INTEGRATION] App dir exists: {app_dir.exists()}")
-    logger.error(f"[INTEGRATION] App dir contents: {list(app_dir.iterdir())[:10] if app_dir.exists() else 'N/A'}")
-    raise ImportError(f"Cannot import app.* modules. App dir: {app_dir_str}, Error: {e}")
+    logger.error(f"[INTEGRATION] ❌ FAILED to import legacy_app.* modules: {e}")
+    logger.error(f"[INTEGRATION] Legacy app dir exists: {Path(app_dir_str).exists()}")
+    logger.error(f"[INTEGRATION] Legacy app dir contents: {list(Path(app_dir_str).iterdir())[:10] if Path(app_dir_str).exists() else 'N/A'}")
+    raise ImportError(f"Cannot import legacy_app.* modules. Legacy app dir: {app_dir_str}, Error: {e}")
 
 
 def run_scheduling_task_saas(

@@ -1,19 +1,19 @@
 # User Routes
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app import db
-from app.models import User, Tenant, EmployeeMapping, SchedulePermission
-from app.utils.auth import role_required
-from app.utils.role_utils import EMPLOYEE_ROLE, normalize_role
+from .. import db
+from ..models import User, Tenant, EmployeeMapping, SchedulePermission
+from ..utils.auth import role_required
+from ..utils.role_utils import EMPLOYEE_ROLE, normalize_role
 try:
-    from app.schemas import UserSchema, UserUpdateSchema, PaginationSchema
+    from ..schemas import UserSchema, UserUpdateSchema, PaginationSchema
     SCHEMAS_AVAILABLE = True
 except ImportError:
     SCHEMAS_AVAILABLE = False
     UserSchema = None
     UserUpdateSchema = None
     PaginationSchema = None
-from app.utils.security import sanitize_input
+from ..utils.security import sanitize_input
 from datetime import datetime
 import logging
 

@@ -8,9 +8,9 @@ import os
 backend_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, backend_dir)
 
-from app import create_app, db
-from app.models import ScheduleDefinition
-from app.services.google_sheets_sync_service import GoogleSheetsSyncService
+from backend.app import create_app, db
+from backend.app.models import ScheduleDefinition
+from backend.app.services.google_sheets_sync_service import GoogleSheetsSyncService
 from flask import current_app
 
 def trigger_sync():
@@ -96,5 +96,8 @@ def trigger_sync():
 if __name__ == '__main__':
     success = trigger_sync()
     sys.exit(0 if success else 1)
+
+
+
 
 

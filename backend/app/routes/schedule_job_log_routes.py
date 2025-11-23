@@ -2,8 +2,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
-from app.models import ScheduleJobLog, User, ScheduleDefinition, SchedulePermission
-from app.utils.role_utils import is_sys_admin_role, is_client_admin_role, normalize_role, SYS_ADMIN_ROLE, CLIENT_ADMIN_ROLE
+from ..models import ScheduleJobLog, User, ScheduleDefinition, SchedulePermission
+from ..utils.role_utils import is_sys_admin_role, is_client_admin_role, normalize_role, SYS_ADMIN_ROLE, CLIENT_ADMIN_ROLE
 try:
     from app.schemas import ScheduleJobLogSchema, ScheduleJobLogUpdateSchema, PaginationSchema, JobRunSchema
     SCHEMAS_AVAILABLE = True

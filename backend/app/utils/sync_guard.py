@@ -10,8 +10,8 @@ from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
 from flask import current_app
 
-from app.models import CachedSchedule, SyncLog, ScheduleDefinition, User, EmployeeMapping
-from app.services.google_sheets_sync_service import GoogleSheetsSyncService
+from ..models import CachedSchedule, SyncLog, ScheduleDefinition, User, EmployeeMapping
+from ..services.google_sheets_sync_service import GoogleSheetsSyncService
 
 logger = logging.getLogger(__name__)
 

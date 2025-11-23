@@ -4,7 +4,7 @@ Provides endpoints for listing, validating, and fetching Google Sheets data
 """
 from flask import Blueprint, jsonify, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models import User, ScheduleDefinition
+from ..models import User, ScheduleDefinition
 import sys
 import os
 
@@ -14,7 +14,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Use shared import utility
-from app.services.google_sheets_import import (
+from ..services.google_sheets_import import (
     _try_import_google_sheets,
     SHEETS_AVAILABLE as GOOGLE_SHEETS_AVAILABLE,
     GoogleSheetsService,

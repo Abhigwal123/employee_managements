@@ -196,16 +196,21 @@ def _try_import_google_sheets(force_retry: bool = False) -> Tuple[bool, Optional
     backend_path = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))  # /app/ (backend dir in container)
     
     # Log all paths we'll try
+    # Priority: legacy_app (Docker) first, then app (local dev)
     paths_to_try = [
+        # Docker: legacy_app mount path (highest priority)
+        os.path.join(backend_path, 'legacy_app', 'services', 'google_sheets', 'service.py'),
+        # Docker: alternative mount at /app/legacy_app
+        '/app/legacy_app/services/google_sheets/service.py',
+        # Standard project root path with legacy_app (works in local development if renamed)
+        os.path.join(project_root, 'legacy_app', 'services', 'google_sheets', 'service.py'),
         # Standard project root path (works in local development)
         os.path.join(project_root, 'app', 'services', 'google_sheets', 'service.py'),
-        # Docker: legacy_app mount path
-        os.path.join(backend_path, 'legacy_app', 'services', 'google_sheets', 'service.py'),
         # Docker: alternative mount at /root/app/
         '/root/app/services/google_sheets/service.py',
         # Alternative project root (one level up)
         os.path.join(os.path.dirname(project_root), 'app', 'services', 'google_sheets', 'service.py'),
-        # Check if app folder exists at backend level
+        # Check if app folder exists at backend level (fallback)
         os.path.join(backend_path, 'app', 'services', 'google_sheets', 'service.py'),
     ]
     
@@ -311,17 +316,17 @@ def _try_import_google_sheets(force_retry: bool = False) -> Tuple[bool, Optional
         
         # Use importlib to load directly from file - bypasses Python's module resolution
         # This avoids conflicts with backend/app/ directory
-        # Use the target_path we found earlier, or construct from project_root
+        # Use the target_path we found earlier, or construct from legacy_app/project_root
         if target_path and path_exists:
             service_file_path = target_path
         else:
-            # Try standard path first
-            service_file_path = os.path.join(project_root, 'app', 'services', 'google_sheets', 'service.py')
-            # If legacy_app mount exists, try that
-            if not os.path.exists(service_file_path):
-                legacy_path = os.path.join(backend_path, 'legacy_app', 'services', 'google_sheets', 'service.py')
-                if os.path.exists(legacy_path):
-                    service_file_path = legacy_path
+            # Try legacy_app path first (Docker)
+            legacy_path = os.path.join(backend_path, 'legacy_app', 'services', 'google_sheets', 'service.py')
+            if os.path.exists(legacy_path):
+                service_file_path = legacy_path
+            else:
+                # Fall back to standard path (local dev)
+                service_file_path = os.path.join(project_root, 'app', 'services', 'google_sheets', 'service.py')
         
         logger.info(f"Loading module directly from file: {service_file_path}")
         
@@ -335,9 +340,16 @@ def _try_import_google_sheets(force_retry: bool = False) -> Tuple[bool, Optional
             
             # Create a module object
             import types
-            module = types.ModuleType("app.services.google_sheets.service")
+            # Use legacy_app package name if path contains legacy_app, otherwise use app
+            if 'legacy_app' in service_file_path:
+                module_name = "legacy_app.services.google_sheets.service"
+                module_package = "legacy_app.services.google_sheets"
+            else:
+                module_name = "app.services.google_sheets.service"
+                module_package = "app.services.google_sheets"
+            module = types.ModuleType(module_name)
             module.__file__ = service_file_path
-            module.__package__ = "app.services.google_sheets"
+            module.__package__ = module_package
             
             # CRITICAL: Pre-populate module namespace with essential imports to avoid UnboundLocalError
             # This ensures os and other standard library modules are available before code execution

@@ -1,29 +1,29 @@
 # Models Package - Import all models for easy access
-from app.models.tenant import Tenant
-from app.models.user import User
-from app.models.department import Department
-from app.models.schedule_definition import ScheduleDefinition
-from app.models.schedule_permission import SchedulePermission
-from app.models.schedule_job_log import ScheduleJobLog
+from .tenant import Tenant
+from .user import User
+from .department import Department
+from .schedule_definition import ScheduleDefinition
+from .schedule_permission import SchedulePermission
+from .schedule_job_log import ScheduleJobLog
 
 # Try to import new models (may not exist yet)
 try:
-    from app.models.employee_mapping import EmployeeMapping
+    from .employee_mapping import EmployeeMapping
 except ImportError:
     EmployeeMapping = None
 
 try:
-    from app.models.sheet_cache import CachedSheetData
+    from .sheet_cache import CachedSheetData
 except ImportError:
     CachedSheetData = None
 
 try:
-    from app.models.cached_schedule import CachedSchedule
+    from .cached_schedule import CachedSchedule
 except ImportError:
     CachedSchedule = None
 
 try:
-    from app.models.sync_log import SyncLog
+    from .sync_log import SyncLog
 except ImportError:
     SyncLog = None
 
@@ -31,7 +31,7 @@ except ImportError:
 Schedule = None
 
 try:
-    from app.models.schedule_task import ScheduleTask
+    from .schedule_task import ScheduleTask
 except ImportError:
     ScheduleTask = None
 

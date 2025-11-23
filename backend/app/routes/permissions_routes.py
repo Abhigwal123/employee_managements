@@ -2,8 +2,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
-from app.models import SchedulePermission, User, ScheduleDefinition
-from app.utils.role_utils import is_client_admin_role, is_schedule_manager_role
+from ..models import SchedulePermission, User, ScheduleDefinition
+from ..utils.role_utils import is_client_admin_role, is_schedule_manager_role
 import logging
 
 logger = logging.getLogger(__name__)

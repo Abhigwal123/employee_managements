@@ -9,8 +9,7 @@ python-dotenv>=1.0.0
 # Database
 sqlalchemy>=2.0.23
 alembic>=1.13.1
-mysqlclient>=2.2.0  # MySQL driver (requires MySQL development libraries)
-# Alternative: PyMySQL>=1.1.0  # Pure Python MySQL driver (easier to install, slower)
+Alternative: PyMySQL>=1.1.0  # Pure Python MySQL driver (easier to install, slower)
 
 # Task Queue
 celery>=5.3.4

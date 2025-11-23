@@ -7,11 +7,11 @@ import traceback
 from datetime import datetime
 from typing import Dict, Any
 
-from app.tasks.celery_app import celery
-from app.extensions import db
+from .celery_app import celery
+from ..extensions import db
 
-from app.models.schedule_task import ScheduleTask
-from app.scheduling.integration import run_scheduling_task_saas
+from ..models.schedule_task import ScheduleTask
+from ..scheduling.integration import run_scheduling_task_saas
 
 # Setup logger
 logger = logging.getLogger(__name__)

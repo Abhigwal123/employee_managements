@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
 
-from app.models import User, Tenant, ScheduleDefinition, ScheduleJobLog
-from app.utils.auth import role_required
-from app.utils.role_utils import is_client_admin_role
+from ..models import User, Tenant, ScheduleDefinition, ScheduleJobLog
+from ..utils.auth import role_required
+from ..utils.role_utils import is_client_admin_role
 
 import logging
 

@@ -13,14 +13,14 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 # Import Flask app and get metadata from Flask-SQLAlchemy
-from app import create_app
-from app.extensions import db
+from backend.app import create_app
+from backend.app.extensions import db
 
 # Create Flask app to initialize models
 app = create_app()
 
 # Import all models to register them with SQLAlchemy
-from app.models import (
+from backend.app.models import (
     Tenant, User, Department, ScheduleDefinition,
     SchedulePermission, ScheduleJobLog, EmployeeMapping,
     CachedSheetData, CachedSchedule, SyncLog, ScheduleTask

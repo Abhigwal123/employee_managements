@@ -1,19 +1,19 @@
 # Schedule Definition Routes
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app import db
-from app.models import ScheduleDefinition, User, Department
+from .. import db
+from ..models import ScheduleDefinition, User, Department
 try:
-    from app.schemas import ScheduleDefinitionSchema, ScheduleDefinitionUpdateSchema, PaginationSchema
+    from ..schemas import ScheduleDefinitionSchema, ScheduleDefinitionUpdateSchema, PaginationSchema
     SCHEMAS_AVAILABLE = True
 except ImportError:
     SCHEMAS_AVAILABLE = False
     ScheduleDefinitionSchema = None
     ScheduleDefinitionUpdateSchema = None
     PaginationSchema = None
-from app.utils.security import sanitize_input
-from app.utils.role_utils import is_client_admin_role, is_schedule_manager_role
-from app.utils.tenant_filter import get_tenant_filtered_query
+from ..utils.security import sanitize_input
+from ..utils.role_utils import is_client_admin_role, is_schedule_manager_role
+from ..utils.tenant_filter import get_tenant_filtered_query
 import logging
 
 logger = logging.getLogger(__name__)

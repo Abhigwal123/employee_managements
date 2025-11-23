@@ -13,13 +13,13 @@ import re
 logger = logging.getLogger(__name__)
 
 # Use shared import utility - import module to access variables dynamically
-import app.services.google_sheets_import as sheets_import_module
-from app.services.google_sheets_import import (
+from . import google_sheets_import as sheets_import_module
+from .google_sheets_import import (
     _try_import_google_sheets,
     fetch_schedule_data,
     GoogleSheetsService
 )
-from app.utils.role_utils import is_client_admin_role
+from ..utils.role_utils import is_client_admin_role
 
 # Aliases for convenience
 SHEETS_AVAILABLE = sheets_import_module.SHEETS_AVAILABLE

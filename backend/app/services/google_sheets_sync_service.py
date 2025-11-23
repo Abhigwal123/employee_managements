@@ -11,19 +11,19 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 import time
 
-from app import db
+from .. import db
 
 # Import models with error handling
 try:
-    from app.models import ScheduleDefinition, User, EmployeeMapping, CachedSchedule, SyncLog
+    from ..models import ScheduleDefinition, User, EmployeeMapping, CachedSchedule, SyncLog
 except ImportError as e:
     logger = logging.getLogger(__name__)
     logger.error(f"[ERROR][SYNC] Missing model import: {e}")
     raise ImportError(f"[ERROR][SYNC] Failed to import required models. Please ensure all models are available: {e}")
 
-from app.services.dashboard_data_service import DashboardDataService
+from .dashboard_data_service import DashboardDataService
 # CRITICAL: Import the module instead of the function directly to get the wrapped version
-import app.services.google_sheets_import as sheets_import_module
+from . import google_sheets_import as sheets_import_module
 # Get fetch_schedule_data from module to ensure we use the wrapped version
 fetch_schedule_data = None  # Will be set after import
 

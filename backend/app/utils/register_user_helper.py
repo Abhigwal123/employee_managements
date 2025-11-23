@@ -5,8 +5,8 @@ Provides role-based permission checking for user registration
 from typing import Optional, Tuple
 import logging
 
-from app.models import User
-from app.utils.role_utils import (
+from ..models import User
+from .role_utils import (
     EMPLOYEE_ROLE,
     ROLE_HIERARCHY,
     SCHEDULE_MANAGER_ROLE,

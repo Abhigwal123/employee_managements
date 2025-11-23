@@ -4,8 +4,8 @@ Schedule task model for tracking scheduling jobs
 
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from app.extensions import db
-from app.database.connection import Base as AlembicBase  # For Alembic compatibility
+from ..extensions import db
+from ..database.connection import Base as AlembicBase  # For Alembic compatibility
 
 
 class ScheduleTask(db.Model):

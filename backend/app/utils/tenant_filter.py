@@ -5,8 +5,8 @@ Provides helper functions for automatic tenant-based data scoping
 
 from typing import Optional, TypeVar, Type
 from sqlalchemy.orm import Query
-from app.extensions import db
-from app.utils.role_utils import is_client_admin_role
+from ..extensions import db
+from .role_utils import is_client_admin_role
 import logging
 
 logger = logging.getLogger(__name__)

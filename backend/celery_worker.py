@@ -52,8 +52,8 @@ logger.info(f"[CELERY_WORKER] sys.path[0:3]: {sys.path[0:3]}")
 logger.info(f"[CELERY_WORKER] ✅ Backend dir in sys.path first - 'from app' will find backend/app")
 
 # Import backend app (will find backend/app because backend_dir is first in sys.path)
-from app import create_app
-from app.extensions import init_celery
+from backend.app import create_app
+from backend.app.extensions import init_celery
 
 # Create Flask app and initialize Celery
 flask_app = create_app()
@@ -62,9 +62,9 @@ celery = init_celery(flask_app)
 if celery:
     # Autodiscover tasks from all task modules
     celery.autodiscover_tasks([
-        'app.services.celery_tasks',
-        'app.tasks.google_sync',
-        'app.tasks.tasks'
+        'backend.app.services.celery_tasks',
+        'backend.app.tasks.google_sync',
+        'backend.app.tasks.tasks'
     ], force=True)
     
     # Also import tasks from celery_tasks module if it exists

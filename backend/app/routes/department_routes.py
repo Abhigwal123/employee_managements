@@ -1,19 +1,19 @@
 # Department Routes
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app import db
-from app.models import Department, User
+from .. import db
+from ..models import Department, User
 try:
-    from app.schemas import DepartmentSchema, DepartmentUpdateSchema, PaginationSchema
+    from ..schemas import DepartmentSchema, DepartmentUpdateSchema, PaginationSchema
     SCHEMAS_AVAILABLE = True
 except ImportError:
     SCHEMAS_AVAILABLE = False
     DepartmentSchema = None
     DepartmentUpdateSchema = None
     PaginationSchema = None
-from app.utils.security import sanitize_input
-from app.utils.role_utils import is_client_admin_role, is_schedule_manager_role
-from app.utils.tenant_filter import get_tenant_filtered_query
+from ..utils.security import sanitize_input
+from ..utils.role_utils import is_client_admin_role, is_schedule_manager_role
+from ..utils.tenant_filter import get_tenant_filtered_query
 import logging
 
 logger = logging.getLogger(__name__)

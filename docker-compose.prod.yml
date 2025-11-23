@@ -20,13 +20,15 @@ services:
       - DEBUG=False
       - SECRET_KEY=${SECRET_KEY}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - PYTHONPATH=/app/backend:/app/legacy_app
       # DATABASE_URL is inherited from docker-compose.yml (includes charset=utf8mb4)
     # Remove debug port exposure in production (use nginx reverse proxy instead)
     ports: []  # Remove port exposure in production
     # Mount service account credentials (read-only)
     volumes:
       - ./service-account-creds.json:/app/service-account-creds.json:ro
-      - ./app:/app/legacy_app:ro  # Mount legacy app folder (root app/) for run_refactored.py imports
+      - ./app:/app/legacy_app:ro
+      - ./backend:/app/backend:ro
     deploy:
       resources:
         limits:
@@ -46,10 +48,11 @@ services:
     environment:
       - FLASK_ENV=production
       - DEBUG=False
+      - PYTHONPATH=/app/backend:/app/legacy_app
     volumes:
       - ./service-account-creds.json:/app/service-account-creds.json:ro
-      - ./app:/app/legacy_app:ro  # Mount legacy app folder (root app/) for run_refactored.py imports
-      - ./app:/root/app:ro  # Also mount at /root/app for import path resolution
+      - ./app:/app/legacy_app:ro
+      - ./backend:/app/backend:ro
     deploy:
       resources:
         limits:
@@ -69,9 +72,11 @@ services:
     environment:
       - FLASK_ENV=production
       - DEBUG=False
+      - PYTHONPATH=/app/backend:/app/legacy_app
     volumes:
-      - ./app:/app/legacy_app:ro  # Mount legacy app folder (root app/) for run_refactored.py imports
-      - ./app:/root/app:ro  # Also mount at /root/app for import path resolution
+      - ./service-account-creds.json:/app/service-account-creds.json:ro
+      - ./app:/app/legacy_app:ro
+      - ./backend:/app/backend:ro
     deploy:
       resources:
         limits:

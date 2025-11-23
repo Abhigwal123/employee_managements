@@ -5,8 +5,8 @@ Celery tasks for periodic synchronization of Google Sheets data to database
 import logging
 from flask import current_app
 from app import db
-from app.models import ScheduleDefinition, SyncLog
-from app.services.google_sheets_sync_service import GoogleSheetsSyncService
+from ..models import ScheduleDefinition, SyncLog
+from ..services.google_sheets_sync_service import GoogleSheetsSyncService
 
 logger = logging.getLogger(__name__)
 

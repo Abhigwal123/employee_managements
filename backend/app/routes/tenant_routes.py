@@ -1,18 +1,18 @@
 # Tenant Routes
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app import db
-from app.models import Tenant, User
+from .. import db
+from ..models import Tenant, User
 try:
-    from app.schemas import TenantSchema, TenantUpdateSchema, PaginationSchema
+    from ..schemas import TenantSchema, TenantUpdateSchema, PaginationSchema
     SCHEMAS_AVAILABLE = True
 except ImportError:
     SCHEMAS_AVAILABLE = False
     TenantSchema = None
     TenantUpdateSchema = None
     PaginationSchema = None
-from app.utils.security import sanitize_input
-from app.utils.role_utils import is_sys_admin_role
+from ..utils.security import sanitize_input
+from ..utils.role_utils import is_sys_admin_role
 import logging
 
 logger = logging.getLogger(__name__)

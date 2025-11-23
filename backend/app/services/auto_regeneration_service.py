@@ -12,7 +12,7 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 
 from app import db
-from app.models import ScheduleDefinition, ScheduleJobLog
+from ..models import ScheduleDefinition, ScheduleJobLog
 
 logger = logging.getLogger(__name__)
 

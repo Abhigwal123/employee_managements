@@ -7,7 +7,10 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
-    libpq-dev \
+    default-libmysqlclient-dev \
+    pkg-config \
+    libssl-dev \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
@@ -17,6 +20,12 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Copy application code (excludes files in .dockerignore)
 COPY . .
+
+# Make backend and legacy_app folders discoverable
+ENV PYTHONPATH="/app/backend:/app/legacy_app:${PYTHONPATH}"
+
+# Create symlink so import app.* still resolves to backend app for backward compatibility
+RUN ln -s /app/backend/app /app/app || true
 
 # Create logs directory
 RUN mkdir -p /app/logs
@@ -37,5 +46,3 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 # Default command
 CMD ["python", "main.py", "--host", "0.0.0.0", "--port", "8000"]
-
-

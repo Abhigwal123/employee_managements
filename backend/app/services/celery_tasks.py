@@ -2,9 +2,9 @@ import importlib.util
 import importlib.machinery
 import sys
 from pathlib import Path
-from app.extensions import init_celery
+from ..extensions import init_celery
 from flask import current_app
-from app.services.google_io import get_default_input_url, get_default_output_url
+from .google_io import get_default_input_url, get_default_output_url
 
 
 def _load_phase1_run_schedule():

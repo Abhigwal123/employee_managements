@@ -6,7 +6,7 @@ import sys
 import os
 import argparse
 import logging
-from app import create_app
+from backend.app import create_app
 
 # Configure logging for startup messages
 logging.basicConfig(
@@ -16,12 +16,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Check Google Sheets service availability at startup
-from app.utils.trace_logger import trace_startup
+from backend.app.utils.trace_logger import trace_startup
 trace_startup("Testing Google Sheets import readiness")
 
 logger.info("Checking Google Sheets service availability...")
 try:
-    from app.services.google_sheets_import import _try_import_google_sheets
+    from backend.app.services.google_sheets_import import _try_import_google_sheets
     success, path = _try_import_google_sheets()
     if success:
         logger.info(f"✅ Google Sheets service ready (loaded from: {path})")

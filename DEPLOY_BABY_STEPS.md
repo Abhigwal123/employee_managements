@@ -85,7 +85,8 @@ cd /path/to/Project_Up
 
 # Upload entire project (excluding venv, node_modules)
 # Note: run_refactored.py is now in backend/ directory
-scp -r backend frontend app docker-compose.yml docker-compose.prod.yml requirements.txt .env.prod ubuntu@YOUR_SERVER_IP:/opt/Project_Up/
+# Note: Use single .env file for both development and production
+scp -r backend frontend app docker-compose.yml docker-compose.prod.yml requirements.txt .env.example ubuntu@YOUR_SERVER_IP:/opt/Project_Up/
 ```
 
 **Or create a zip and upload:**

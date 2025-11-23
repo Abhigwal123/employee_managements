@@ -1,7 +1,7 @@
 # Alert Routes
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models import User
+from ..models import User
 import logging
 
 logger = logging.getLogger(__name__)

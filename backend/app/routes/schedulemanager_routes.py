@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 from celery.result import AsyncResult
 from celery import current_app as celery_current_app
-from app.utils.auth import role_required
+from ..utils.auth import role_required
 from flask import current_app
-from app.services.google_io import summarize_sheet_target, get_default_input_url, get_default_output_url
+from ..services.google_io import summarize_sheet_target, get_default_input_url, get_default_output_url
 
 
 # Note: url_prefix set to None - will be set during registration in __init__.py

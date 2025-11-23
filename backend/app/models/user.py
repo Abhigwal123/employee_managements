@@ -6,7 +6,7 @@ from sqlalchemy.orm import foreign
 from sqlalchemy import func
 import logging
 
-from app.utils.role_utils import (
+from ..utils.role_utils import (
     format_role_for_response,
     is_client_admin_role,
     is_schedule_manager_role,

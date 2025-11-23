@@ -1,18 +1,18 @@
 # Authentication Routes
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, verify_jwt_in_request
-from app import db
-from app.models import User, Tenant
+from .. import db
+from ..models import User, Tenant
 try:
-    from app.schemas import UserSchema, UserLoginSchema, TenantSchema
+    from ..schemas import UserSchema, UserLoginSchema, TenantSchema
     SCHEMAS_AVAILABLE = True
 except ImportError:
     SCHEMAS_AVAILABLE = False
     UserSchema = None
     UserLoginSchema = None
     TenantSchema = None
-from app.utils.security import hash_password, verify_password, validate_password_strength
-from app.utils.role_utils import (
+from ..utils.security import hash_password, verify_password, validate_password_strength
+from ..utils.role_utils import (
     EMPLOYEE_ROLE,
     format_role_for_response,
     is_client_admin_role,

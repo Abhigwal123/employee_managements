@@ -10,8 +10,6 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE:-scheduling_system}
       - MYSQL_USER=${MYSQL_USER:-scheduling_user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-scheduling_password}
-    ports:
-      - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -62,9 +60,11 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-change-me-in-production}
       - GOOGLE_APPLICATION_CREDENTIALS=/app/service-account-creds.json
       - BACKEND_CORS_ORIGINS=http://localhost:80,http://localhost,http://localhost:5173,http://localhost:5174,http://127.0.0.1:80,http://127.0.0.1:5173,http://127.0.0.1:5174
+      - PYTHONPATH=/app/backend:/app/legacy_app
     volumes:
       - ./service-account-creds.json:/app/service-account-creds.json:ro
-      - ./app:/app/legacy_app:ro  # Mount legacy app folder (root app/) for run_refactored.py imports
+      - ./app:/app/legacy_app:ro
+      - ./backend:/app/backend:ro
     depends_on:
       mysql:
         condition: service_healthy
@@ -74,7 +74,7 @@ services:
       - scheduling-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8000/api/v1/health"]
       interval: 30s
       timeout: 10s
       start_period: 40s
@@ -93,10 +93,11 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - GOOGLE_APPLICATION_CREDENTIALS=/app/service-account-creds.json
+      - PYTHONPATH=/app/backend:/app/legacy_app
     volumes:
       - ./service-account-creds.json:/app/service-account-creds.json:ro
-      - ./app:/app/legacy_app:ro  # Mount legacy app folder (root app/) for run_refactored.py imports
-      - ./app:/root/app:ro  # Also mount at /root/app for import path resolution
+      - ./app:/app/legacy_app:ro
+      - ./backend:/app/backend:ro
     depends_on:
       - mysql
       - redis
@@ -117,9 +118,11 @@ services:
       - DATABASE_URL=mysql+pymysql://${MYSQL_USER:-scheduling_user}:${MYSQL_PASSWORD:-scheduling_password}@mysql:3306/${MYSQL_DATABASE:-scheduling_system}?charset=utf8mb4
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - PYTHONPATH=/app/backend:/app/legacy_app
     volumes:
-      - ./app:/app/legacy_app:ro  # Mount legacy app folder (root app/) for run_refactored.py imports
-      - ./app:/root/app:ro  # Also mount at /root/app for import path resolution
+      - ./service-account-creds.json:/app/service-account-creds.json:ro
+      - ./app:/app/legacy_app:ro
+      - ./backend:/app/backend:ro
     depends_on:
       - mysql
       - redis
@@ -158,7 +161,7 @@ services:
         - VITE_API_BASE_URL=http://localhost:8000/api/v1
     container_name: scheduling-frontend
     ports:
-      - "80:80"
+      - "3000:80"
     depends_on:
       - backend
     networks:

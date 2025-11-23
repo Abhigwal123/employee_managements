@@ -12,30 +12,32 @@ import sys
 import pandas as pd
 from typing import Dict, Any, Optional
 
-# 🔧 CRITICAL: Setup Python path BEFORE importing app.* modules
-# For "from app.data_provider import ..." to work, we need the PROJECT ROOT in sys.path
-# NOT the app directory itself (that would break package imports)
+# 🔧 CRITICAL: Setup Python path BEFORE importing legacy_app.* modules
+# For "from legacy_app.data_provider import ..." to work, we need legacy_app in sys.path
+# In Docker: ./backend -> /app/backend, ./app -> /app/legacy_app
 # NOTE: This file is now in backend/, so script_dir is backend/, and project_root is parent of backend/
 script_dir = os.path.dirname(os.path.abspath(__file__))  # This IS the backend directory
 project_root = os.path.dirname(script_dir)  # Project root (parent of backend/)
+# Check for legacy_app mount first (Docker), then fall back to app (local dev)
+legacy_app_dir = os.path.abspath(os.path.join(project_root, "legacy_app"))
 app_dir = os.path.abspath(os.path.join(project_root, "app"))
+if os.path.exists(legacy_app_dir):
+    app_dir = legacy_app_dir
+elif not os.path.exists(app_dir):
+    # Try Docker paths
+    legacy_app_dir = "/app/legacy_app"
+    if os.path.exists(legacy_app_dir):
+        app_dir = legacy_app_dir
 backend_dir = script_dir  # We're now inside backend/
 
-# CRITICAL: Remove app_dir from sys.path if it exists (it breaks package imports)
-# Something else might have added it (e.g., Google Sheets service loader)
-if app_dir in sys.path:
-    sys.path.remove(app_dir)
+# CRITICAL: Setup sys.path for both backend and legacy_app
+# Add backend first so backend.app takes precedence
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
 
-# CRITICAL: Remove backend from sys.path temporarily to avoid namespace conflict
-# When both project root and backend are in sys.path, Python might import backend/app instead of root app
-backend_in_path = backend_dir in sys.path
-if backend_in_path:
-    sys.path.remove(backend_dir)
-
-# Add project root to sys.path FIRST (this allows "from app.*" imports)
-# DO NOT add app_dir to sys.path - that breaks package imports!
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Add legacy_app to sys.path for "from legacy_app.*" imports
+if app_dir not in sys.path:
+    sys.path.insert(0, app_dir)
 
 # Log path setup for debugging
 import logging
@@ -43,13 +45,9 @@ logging.basicConfig(level=logging.INFO)
 _path_logger = logging.getLogger(__name__)
 _path_logger.info(f"[RUN_REFACTORED] Script dir (backend): {script_dir}")
 _path_logger.info(f"[RUN_REFACTORED] Project root: {project_root}")
-_path_logger.info(f"[RUN_REFACTORED] App package location: {app_dir}")
-if app_dir in sys.path:
-    _path_logger.warning(f"[RUN_REFACTORED] ⚠️ App dir was in sys.path - REMOVED to fix package imports")
-if backend_in_path:
-    _path_logger.warning(f"[RUN_REFACTORED] ⚠️ Backend dir was in sys.path - REMOVED to avoid namespace conflict")
+_path_logger.info(f"[RUN_REFACTORED] Legacy app package location: {app_dir}")
 _path_logger.info(f"[RUN_REFACTORED] sys.path[0:3]: {sys.path[0:3]}")
-_path_logger.info(f"[RUN_REFACTORED] ✅ Project root in sys.path - 'from app.*' imports should work")
+_path_logger.info(f"[RUN_REFACTORED] ✅ Legacy app in sys.path - 'from legacy_app.*' imports should work")
 
 # Default configuration - URLs are preset in the file
 DEFAULT_INPUT_SHEET_URL = "https://docs.google.com/spreadsheets/d/1hEr8XD3ThVQQAFWi-Q0owRYxYnBRkwyqiOdbmp6zafg/edit?gid=0#gid=0"
@@ -60,7 +58,7 @@ os.environ.setdefault("GOOGLE_APPLICATION_CREDENTIALS", DEFAULT_CREDENTIALS_PATH
 
 # Import our refactored modules - Use absolute imports
 # These imports will fail with explicit error if modules not found (no try/except)
-_path_logger.info(f"[RUN_REFACTORED] Attempting to import app.* modules...")
+_path_logger.info(f"[RUN_REFACTORED] Attempting to import legacy_app.* modules...")
 
 # CRITICAL: Verify we're importing from the correct app directory (root app, not backend/app)
 # Check if 'app' is already in sys.modules and verify it's the root app
@@ -131,35 +129,35 @@ try:
         for k in list(conflicting_modules.keys()):
             del sys.modules[k]
         
-        # Step 2: Create root 'app' package in sys.modules
+        # Step 2: Create root 'legacy_app' package in sys.modules
         root_app_init_path = os.path.join(app_dir, '__init__.py')
-        root_app_spec = importlib.util.spec_from_file_location('app', root_app_init_path)
+        root_app_spec = importlib.util.spec_from_file_location('legacy_app', root_app_init_path)
         if root_app_spec is None or root_app_spec.loader is None:
-            raise ImportError(f"Could not create spec for root app package from {root_app_init_path}")
+            raise ImportError(f"Could not create spec for root legacy_app package from {root_app_init_path}")
         root_app_module = importlib.util.module_from_spec(root_app_spec)
-        sys.modules['app'] = root_app_module
+        sys.modules['legacy_app'] = root_app_module
         root_app_spec.loader.exec_module(root_app_module)
         
-        # Step 2.5: Ensure app.utils package is set up before importing modules that use it
-        # This is critical because app.schedule_cpsat uses relative imports like "from .utils.logger import get_logger"
+        # Step 2.5: Ensure legacy_app.utils package is set up before importing modules that use it
+        # This is critical because legacy_app.schedule_cpsat uses relative imports like "from .utils.logger import get_logger"
         utils_dir = os.path.join(app_dir, 'utils')
         utils_init_path = os.path.join(utils_dir, '__init__.py')
         if os.path.exists(utils_init_path):
-            utils_spec = importlib.util.spec_from_file_location('app.utils', utils_init_path)
+            utils_spec = importlib.util.spec_from_file_location('legacy_app.utils', utils_init_path)
             if utils_spec and utils_spec.loader:
                 utils_module = importlib.util.module_from_spec(utils_spec)
-                sys.modules['app.utils'] = utils_module
+                sys.modules['legacy_app.utils'] = utils_module
                 utils_spec.loader.exec_module(utils_module)
         
-        # Step 3: Import app.utils.logger FIRST to ensure it's in sys.modules before schedule_cpsat imports it
+        # Step 3: Import legacy_app.utils.logger FIRST to ensure it's in sys.modules before schedule_cpsat imports it
         # This prevents schedule_cpsat from resolving the relative import to backend/app/utils/logger
-        from app.utils.logger import setup_logging, get_logger
+        from legacy_app.utils.logger import setup_logging, get_logger
         
         # Step 4: Now import other root app modules (they'll use relative imports correctly)
-        from app.data_provider import create_data_provider
-        from app.data_writer import create_data_writer, write_all_results_to_excel, write_all_results_to_google_sheets
-        from app.schedule_cpsat import process_input_data, solve_cpsat
-        from app.schedule_helpers import (
+        from legacy_app.data_provider import create_data_provider
+        from legacy_app.data_writer import create_data_writer, write_all_results_to_excel, write_all_results_to_google_sheets
+        from legacy_app.schedule_cpsat import process_input_data, solve_cpsat
+        from legacy_app.schedule_helpers import (
             build_rows, build_daily_analysis_report, check_hard_constraints, 
             check_soft_constraints, generate_soft_constraint_report, 
             create_schedule_chart, debug_schedule
@@ -193,37 +191,37 @@ try:
         
         _path_logger.info(f"[RUN_REFACTORED] ✅ Successfully imported all root app modules")
     else:
-        # Normal import path - app module is not conflicting
-        # Import app module first to verify it's the correct one
-        import app
-        app_file = getattr(app, '__file__', None)
+        # Normal import path - legacy_app module is not conflicting
+        # Import legacy_app module first to verify it's the correct one
+        import legacy_app
+        app_file = getattr(legacy_app, '__file__', None)
         expected_app_file = os.path.join(app_dir, '__init__.py')
         if app_file != expected_app_file:
-            _path_logger.error(f"[RUN_REFACTORED] ❌ Imported 'app' from wrong location!")
+            _path_logger.error(f"[RUN_REFACTORED] ❌ Imported 'legacy_app' from wrong location!")
             _path_logger.error(f"[RUN_REFACTORED] Got: {app_file}")
             _path_logger.error(f"[RUN_REFACTORED] Expected: {expected_app_file}")
-            raise ImportError(f"Wrong 'app' module imported. Got {app_file}, expected {expected_app_file}")
-        _path_logger.info(f"[RUN_REFACTORED] ✅ Verified 'app' module is from correct location: {app_file}")
+            raise ImportError(f"Wrong 'legacy_app' module imported. Got {app_file}, expected {expected_app_file}")
+        _path_logger.info(f"[RUN_REFACTORED] ✅ Verified 'legacy_app' module is from correct location: {app_file}")
         
         # Now import the submodules
-        from app.data_provider import create_data_provider
-        from app.data_writer import create_data_writer, write_all_results_to_excel, write_all_results_to_google_sheets
-        from app.schedule_cpsat import process_input_data, solve_cpsat
-        from app.schedule_helpers import (
+        from legacy_app.data_provider import create_data_provider
+        from legacy_app.data_writer import create_data_writer, write_all_results_to_excel, write_all_results_to_google_sheets
+        from legacy_app.schedule_cpsat import process_input_data, solve_cpsat
+        from legacy_app.schedule_helpers import (
             build_rows, build_daily_analysis_report, check_hard_constraints, 
             check_soft_constraints, generate_soft_constraint_report, 
             create_schedule_chart, debug_schedule
         )
-        from app.utils.logger import setup_logging, get_logger
-        _path_logger.info(f"[RUN_REFACTORED] ✅ Successfully imported all app.* modules")
+        from legacy_app.utils.logger import setup_logging, get_logger
+        _path_logger.info(f"[RUN_REFACTORED] ✅ Successfully imported all legacy_app.* modules")
 except ImportError as e:
-    _path_logger.error(f"[RUN_REFACTORED] ❌ FAILED to import app.* modules: {e}")
-    _path_logger.error(f"[RUN_REFACTORED] App dir exists: {os.path.exists(app_dir)}")
-    _path_logger.error(f"[RUN_REFACTORED] App dir contents: {os.listdir(app_dir)[:10] if os.path.exists(app_dir) else 'N/A'}")
+    _path_logger.error(f"[RUN_REFACTORED] ❌ FAILED to import legacy_app.* modules: {e}")
+    _path_logger.error(f"[RUN_REFACTORED] Legacy app dir exists: {os.path.exists(app_dir)}")
+    _path_logger.error(f"[RUN_REFACTORED] Legacy app dir contents: {os.listdir(app_dir)[:10] if os.path.exists(app_dir) else 'N/A'}")
     _path_logger.error(f"[RUN_REFACTORED] sys.path: {sys.path[:5]}")
     import traceback
     _path_logger.error(f"[RUN_REFACTORED] Traceback: {traceback.format_exc()}")
-    raise ImportError(f"Cannot import app.* modules. App dir: {app_dir}, Error: {e}")
+    raise ImportError(f"Cannot import legacy_app.* modules. Legacy app dir: {app_dir}, Error: {e}")
 
 # Initialize logger
 logger = get_logger(__name__)
@@ -403,7 +401,7 @@ def run_schedule_task(
             if gaps:
                 # Import is already done at top of file, but ensure it's available
                 try:
-                    from app.schedule_helpers import generate_gap_analysis_report
+                    from legacy_app.schedule_helpers import generate_gap_analysis_report
                     gap_report_lines = generate_gap_analysis_report(provided, gaps)
                     gap_analysis_df = pd.DataFrame(gap_report_lines, columns=['人力缺口分析與建議'])
                     logger.info(f"   - Gap analysis lines: {len(gap_report_lines)}")

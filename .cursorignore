@@ -1,0 +1,51 @@
+# Large directories that should be excluded from Cursor indexing
+node_modules/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Database files
+*.db
+*.sqlite3
+instance/
+
+# Logs
+logs/
+*.log
+
+# Binary files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.pdf
+
+# Dependencies
+.venv/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Service account credentials
+service-account-creds.json
+
+# Reports (may contain large files)
+reports/
+
+# Git
+.git/
+
+
+

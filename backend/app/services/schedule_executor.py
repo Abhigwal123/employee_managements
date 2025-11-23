@@ -8,7 +8,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from app import db
-from app.models import ScheduleJobLog
+from ..models import ScheduleJobLog
 
 logger = logging.getLogger(__name__)
 

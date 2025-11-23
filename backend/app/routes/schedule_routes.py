@@ -23,7 +23,7 @@ import os
 from datetime import datetime, date
 from math import ceil
 
-from app.utils.role_utils import is_client_admin_role, is_schedule_manager_role
+from ..utils.role_utils import is_client_admin_role, is_schedule_manager_role
 
 # Create logger and blueprint - these are safe at module level
 logger = logging.getLogger(__name__)
